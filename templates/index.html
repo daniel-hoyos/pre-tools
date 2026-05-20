@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2E7D32">
+<title>Control de Calidad · Fruto en Tolva</title>
+<style>
+/* ── Reset & base ───────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --g0:#1B5E20;--g1:#2E7D32;--g2:#388E3C;--g3:#4CAF50;
+  --gp:#C8E6C9;--gbg:#F1F8E9;
+  --cat-verde:#2E7D32;--cat-maduro:#F57F17;--cat-sobre:#BF360C;
+  --cat-podrido:#4E342E;--cat-pedu:#1565C0;
+  --white:#fff;--light:#F5F5F5;--mid:#E0E0E0;--dark:#212121;--muted:#757575;
+  --shadow:0 2px 10px rgba(0,0,0,.14);--r:14px;
+  --nav-h:56px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--gbg);color:var(--dark);
+  max-width:480px;margin:0 auto;
+  display:flex;flex-direction:column;height:100%;
+}
+
+/* ── Nav bar ────────────────────────────────────────────────────────────── */
+.nav{
+  height:var(--nav-h);min-height:var(--nav-h);
+  background:var(--g1);color:#fff;
+  display:flex;align-items:center;gap:8px;
+  padding:0 12px;
+  box-shadow:var(--shadow);z-index:50;flex-shrink:0;
+}
+.nav-back{
+  background:none;border:none;color:#fff;
+  font-size:22px;cursor:pointer;
+  padding:6px 8px;border-radius:8px;
+  line-height:1;display:none;
+}
+.nav-back.visible{display:block}
+.nav-title{flex:1;font-size:16px;font-weight:700;letter-spacing:.2px}
+.nav-action{
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  font-size:13px;font-weight:700;cursor:pointer;
+  padding:7px 12px;border-radius:20px;white-space:nowrap;
+  display:none;
+}
+.nav-action.visible{display:block}
+
+/* ── Screens ────────────────────────────────────────────────────────────── */
+.screen{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.active{display:block}
+#scr-camera.active{display:flex;flex-direction:column;overflow:hidden}
+.pad{padding:16px}
+
+/* ── Home ───────────────────────────────────────────────────────────────── */
+.home-hero{text-align:center;padding:48px 24px 32px}
+.home-logo{font-size:72px;display:block;margin-bottom:12px}
+.home-title{font-size:22px;font-weight:800;color:var(--g0);margin-bottom:6px}
+.home-sub{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.5}
+.home-btns{display:flex;flex-direction:column;gap:12px;padding:0 24px}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn{
+  display:block;width:100%;padding:16px;border:none;border-radius:var(--r);
+  font-size:15px;font-weight:700;cursor:pointer;text-align:center;
+  transition:transform .1s,box-shadow .1s;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--g1);color:#fff;box-shadow:0 4px 14px rgba(46,125,50,.35)}
+.btn-outline{background:#fff;color:var(--g1);border:2px solid var(--g1)}
+.btn-danger{background:#C62828;color:#fff}
+.btn-sm{padding:10px 16px;font-size:13px;border-radius:10px}
+
+/* ── Cards / form ────────────────────────────────────────────────────────── */
+.card{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--g0);margin-bottom:12px}
+.form-row{margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:700;color:var(--g0);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+input,select,textarea{
+  width:100%;padding:13px 12px;
+  border:2px solid var(--mid);border-radius:10px;
+  font-size:16px;color:var(--dark);background:#fff;
+  transition:border-color .2s;-webkit-appearance:none;appearance:none;
+  font-family:inherit;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g3)}
+textarea{min-height:72px;resize:vertical}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23388E3C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+/* ── General photos bar ──────────────────────────────────────────────────── */
+.gen-bar{
+  background:#263238;flex-shrink:0;
+  border-bottom:1px solid #37474F;
+  display:none;
+}
+.gen-bar-inner{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 14px;
+}
+.gen-bar-icon{font-size:22px;flex-shrink:0}
+.gen-bar-text{flex:1}
+.gen-bar-title{font-size:13px;font-weight:800;color:#fff;display:block}
+.gen-bar-sub{font-size:11px;color:#90A4AE;display:block;margin-top:1px}
+.gen-bar-count{
+  font-size:22px;font-weight:800;color:#80CBC4;
+  white-space:nowrap;flex-shrink:0;
+}
+.gen-bar-count.max{color:#EF9A9A}
+
+/* ── Camera screen ───────────────────────────────────────────────────────── */
+.count-bar{
+  display:flex;background:#111;flex-shrink:0;
+  border-bottom:1px solid #222;
+}
+.count-cell{
+  flex:1;text-align:center;padding:6px 2px;cursor:default;
+  border-right:1px solid #222;
+}
+.count-cell:last-child{border-right:none}
+.count-num{font-size:20px;font-weight:800;color:#fff;display:block;line-height:1.1}
+.count-lbl{font-size:9px;font-weight:600;color:#aaa;display:block;margin-top:1px}
+.count-cell[data-cat="Racimos verdes"]   .count-num{color:#66BB6A}
+.count-cell[data-cat="Racimos maduros"]  .count-num{color:#FFA726}
+.count-cell[data-cat="Racimos sobre maduros"] .count-num{color:#EF5350}
+.count-cell[data-cat="Racimos podridos"] .count-num{color:#A1887F}
+.count-cell[data-cat="Pedúnculo largo"]  .count-num{color:#64B5F6}
+
+.cam-viewport{flex:1;position:relative;background:#000;overflow:hidden}
+#cam-video,#cam-photo{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+}
+#cam-photo{display:none;z-index:2}
+.cam-label-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.65));
+  padding:24px 16px 12px;z-index:3;display:none;
+}
+.cam-label-overlay.show{display:block}
+.cam-confirmed-tag{
+  display:inline-block;padding:6px 14px;border-radius:20px;
+  font-size:14px;font-weight:700;color:#fff;
+}
+
+.cam-controls{background:#111;flex-shrink:0;padding-bottom:var(--safe-bottom)}
+
+/* Category selector */
+.cat-row{
+  display:flex;gap:6px;padding:8px 12px;
+  flex-wrap:wrap;justify-content:center;
+}
+.cat-pill{
+  flex-shrink:0;padding:7px 12px;border-radius:20px;
+  border:2px solid transparent;font-size:12px;font-weight:700;
+  color:#fff;cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.cat-pill.active{border-color:#fff;transform:scale(1.07)}
+.cat-pill[data-cat="Racimos verdes"]        {background:var(--cat-verde)}
+.cat-pill[data-cat="Racimos maduros"]       {background:var(--cat-maduro)}
+.cat-pill[data-cat="Racimos sobre maduros"] {background:var(--cat-sobre)}
+.cat-pill[data-cat="Racimos podridos"]      {background:var(--cat-podrido)}
+.cat-pill[data-cat="Pedúnculo largo"]       {background:var(--cat-pedu)}
+
+/* Capture / save area */
+.capture-zone{display:flex;align-items:center;justify-content:center;padding:10px 16px 14px;gap:20px}
+.capture-zone.hidden{display:none}
+.cap-btn{
+  width:70px;height:70px;border-radius:50%;
+  background:#fff;border:5px solid #888;
+  box-shadow:0 0 0 4px rgba(255,255,255,.25);
+  cursor:pointer;flex-shrink:0;transition:transform .1s;
+}
+.cap-btn:active{transform:scale(.93)}
+.side-btn{
+  flex:1;padding:14px;border:none;border-radius:12px;
+  font-size:14px;font-weight:700;cursor:pointer;color:#fff;
+}
+.side-btn.retake{background:#333}
+.side-btn.save  {background:var(--g2)}
+
+/* Fallback file input */
+.file-fallback{
+  display:none;flex-direction:column;align-items:center;
+  justify-content:center;height:100%;color:#888;gap:16px;text-align:center;
+  padding:24px;
+}
+.file-fallback.show{display:flex}
+.file-fallback-icon{font-size:56px}
+#file-input{display:none}
+.btn-file{
+  background:var(--g1);color:#fff;border:none;
+  padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+}
+
+/* ── Reports list ─────────────────────────────────────────────────────────── */
+.report-item{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border-radius:var(--r);padding:14px;
+  margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;
+  transition:transform .1s;
+}
+.report-item:active{transform:scale(.98)}
+.rep-icon{
+  width:48px;height:48px;border-radius:12px;background:var(--gp);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.rep-info{flex:1;min-width:0}
+.rep-lote{font-weight:800;font-size:15px;color:var(--g0);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rep-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.rep-arrow{color:var(--mid);font-size:18px;flex-shrink:0}
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-icon{font-size:56px;display:block;margin-bottom:12px}
+
+/* ── Report detail ─────────────────────────────────────────────────────────── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.info-cell{background:var(--gbg);border-radius:10px;padding:10px 12px}
+.info-key{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--g0)}
+.info-val{font-size:14px;color:var(--dark);margin-top:2px}
+.info-cell.full{grid-column:1/-1}
+
+.stat-row{display:flex;gap:6px;margin:8px 0}
+.stat-box{
+  flex:1;border-radius:10px;padding:8px 4px;text-align:center;
+}
+.stat-box[data-cat="Racimos verdes"]        {background:#E8F5E9}
+.stat-box[data-cat="Racimos maduros"]       {background:#FFF3E0}
+.stat-box[data-cat="Racimos sobre maduros"] {background:#FBE9E7}
+.stat-box[data-cat="Racimos podridos"]      {background:#EFEBE9}
+.stat-box[data-cat="Pedúnculo largo"]       {background:#E3F2FD}
+.stat-n{font-size:22px;font-weight:800;display:block}
+.stat-n[data-cat="Racimos verdes"]        {color:var(--cat-verde)}
+.stat-n[data-cat="Racimos maduros"]       {color:var(--cat-maduro)}
+.stat-n[data-cat="Racimos sobre maduros"] {color:var(--cat-sobre)}
+.stat-n[data-cat="Racimos podridos"]      {color:var(--cat-podrido)}
+.stat-n[data-cat="Pedúnculo largo"]       {color:var(--cat-pedu)}
+.stat-lbl{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.stat-pct{font-size:11px;font-weight:700;color:var(--muted);margin-top:1px}
+
+/* Photo group in detail */
+.photo-group{margin-bottom:14px}
+.photo-group-title{
+  font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:6px 8px;border-radius:8px;
+  margin-bottom:6px;color:#fff;display:inline-block;
+}
+.photo-group-title[data-cat="General"]               {background:#455A64}
+.photo-group-title[data-cat="Racimos verdes"]        {background:var(--cat-verde)}
+.photo-group-title[data-cat="Racimos maduros"]       {background:var(--cat-maduro)}
+.photo-group-title[data-cat="Racimos sobre maduros"] {background:var(--cat-sobre)}
+.photo-group-title[data-cat="Racimos podridos"]      {background:var(--cat-podrido)}
+.photo-group-title[data-cat="Pedúnculo largo"]       {background:var(--cat-pedu)}
+.photo-strip{display:flex;gap:6px;flex-wrap:wrap}
+.photo-thumb{
+  width:calc(20% - 6px);min-width:52px;aspect-ratio:1;
+  object-fit:cover;border-radius:8px;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.photo-delete-wrap{position:relative;display:inline-block;
+  width:calc(20% - 6px);min-width:52px;}
+.photo-delete-wrap img{width:100%;aspect-ratio:1;object-fit:cover;
+  border-radius:8px;display:block;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.photo-del-btn{
+  position:absolute;top:2px;right:2px;width:20px;height:20px;
+  border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;
+  font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#323232;color:#fff;padding:11px 22px;border-radius:24px;
+  font-size:14px;font-weight:500;z-index:200;
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;
+  white-space:nowrap;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Spinner / loading ────────────────────────────────────────────────────── */
+.spinner{
+  width:36px;height:36px;border:4px solid var(--mid);
+  border-top-color:var(--g1);border-radius:50%;
+  animation:spin .8s linear infinite;margin:32px auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:10;
+}
+.loading-overlay .spinner{border-top-color:#fff;border-color:rgba(255,255,255,.3)}
+.loading-overlay.hidden{display:none}
+
+/* ── Photo cards (report detail) ─────────────────────────────────────────── */
+.photo-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.photo-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.photo-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
+.photo-card-label{
+  font-size:11px;font-weight:700;text-align:center;
+  padding:5px 8px;color:#fff;letter-spacing:.3px;
+}
+.photo-card-label[data-cat="General"]               {background:#455A64}
+.photo-card-label[data-cat="Racimos verdes"]        {background:var(--cat-verde)}
+.photo-card-label[data-cat="Racimos maduros"]       {background:var(--cat-maduro)}
+.photo-card-label[data-cat="Racimos sobre maduros"] {background:var(--cat-sobre)}
+.photo-card-label[data-cat="Racimos podridos"]      {background:var(--cat-podrido)}
+.photo-card-label[data-cat="Pedúnculo largo"]       {background:var(--cat-pedu)}
+.photo-card-actions{display:flex;gap:6px;padding:7px 8px}
+.photo-action-btn{
+  flex:1;border:none;border-radius:8px;padding:8px 4px;
+  font-size:12px;font-weight:700;cursor:pointer;
+}
+.photo-action-btn.edit{background:var(--gbg);color:var(--g0)}
+.photo-action-btn.del{background:#FFEBEE;color:#C62828;flex:0 0 38px}
+
+/* ── Category picker modal ────────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-sheet{
+  width:100%;max-width:480px;background:#fff;
+  border-radius:20px 20px 0 0;padding:20px 16px;
+  padding-bottom:calc(20px + var(--safe-bottom));
+}
+.modal-title{font-weight:800;font-size:16px;margin-bottom:14px;color:var(--g0);text-align:center}
+.modal-cat-btn{
+  display:block;width:100%;padding:13px 16px;border:none;border-radius:10px;
+  font-size:14px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:8px;
+  text-align:left;
+}
+.modal-cat-btn[data-cat="Racimos verdes"]        {background:var(--cat-verde)}
+.modal-cat-btn[data-cat="Racimos maduros"]       {background:var(--cat-maduro)}
+.modal-cat-btn[data-cat="Racimos sobre maduros"] {background:var(--cat-sobre)}
+.modal-cat-btn[data-cat="Racimos podridos"]      {background:var(--cat-podrido)}
+.modal-cat-btn[data-cat="Pedúnculo largo"]       {background:var(--cat-pedu)}
+.modal-cat-btn.modal-cancel{background:var(--light);color:var(--dark);margin-top:4px}
+.modal-cat-btn.current::before{content:"✓  "}
+
+/* ── Login screen ────────────────────────────────────────────────────────── */
+.login-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:100%;padding:32px 24px;
+}
+.login-logo{font-size:64px;margin-bottom:12px}
+.login-title{font-size:22px;font-weight:800;color:var(--g0);margin-bottom:4px}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.login-card{background:#fff;border-radius:var(--r);padding:24px;
+  width:100%;max-width:360px;box-shadow:var(--shadow)}
+.login-error{color:#C62828;font-size:13px;margin-top:8px;
+  text-align:center;min-height:18px}
+
+/* ── Stats screen ────────────────────────────────────────────────────────── */
+.filter-card{background:#fff;border-radius:var(--r);padding:16px;
+  margin-bottom:12px;box-shadow:var(--shadow)}
+.period-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.period-btn{
+  padding:7px 12px;border-radius:20px;border:2px solid var(--mid);
+  background:#fff;font-size:12px;font-weight:700;color:var(--dark);
+  cursor:pointer;transition:all .15s;
+}
+.period-btn.active{border-color:var(--g1);background:var(--g1);color:#fff}
+.custom-dates{display:flex;gap:8px;margin-top:10px}
+.custom-dates input{font-size:14px;padding:10px 10px}
+.stats-result{background:#fff;border-radius:var(--r);padding:16px;
+  box-shadow:var(--shadow)}
+.stats-summary{
+  font-size:14px;color:var(--muted);font-weight:600;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--mid);
+}
+.stats-summary strong{color:var(--g0);font-size:18px}
+.stat-bar-row{margin-bottom:14px}
+.stat-bar-label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:4px;
+}
+.stat-bar-name{font-size:13px;font-weight:700;color:var(--dark)}
+.stat-bar-nums{font-size:13px;color:var(--muted)}
+.stat-bar-track{
+  height:10px;background:var(--mid);border-radius:5px;overflow:hidden;
+}
+.stat-bar-fill{height:100%;border-radius:5px;transition:width .4s ease}
+.stats-empty{text-align:center;padding:32px 0;color:var(--muted);font-size:14px}
+
+/* ── Fullscreen image viewer ─────────────────────────────────────────────── */
+.img-viewer{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.img-viewer.open{opacity:1;pointer-events:auto}
+.img-viewer img{max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain}
+.img-viewer-close{
+  position:absolute;top:16px;right:16px;
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  font-size:28px;cursor:pointer;width:44px;height:44px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav bar ─────────────────────────────────────────────────────────────── -->
+<div class="nav" id="nav">
+  <button class="nav-back" id="nav-back" onclick="navBack()">‹</button>
+  <span class="nav-title" id="nav-title">Control de Calidad</span>
+  <button class="nav-action" id="nav-action"></button>
+  <button class="nav-action" id="nav-logout" style="display:none;margin-left:6px"
+          onclick="doLogout()">Salir</button>
+</div>
+
+<!-- ── Screens ──────────────────────────────────────────────────────────────── -->
+
+<!-- LOGIN -->
+<div class="screen active" id="scr-login">
+  <div class="login-wrap">
+    <span class="login-logo">🌴</span>
+    <div class="login-title">Control de Calidad</div>
+    <div class="login-sub">Fruto en Tolva</div>
+    <div class="login-card">
+      <div class="form-row">
+        <label for="login-pw">Contraseña</label>
+        <input id="login-pw" type="password" placeholder="Ingresa la contraseña"
+               autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="scr-home">
+  <div class="home-hero">
+    <span class="home-logo">🌴</span>
+    <div class="home-title">Control de Calidad</div>
+    <div class="home-sub">Fruto en Tolva</div>
+  </div>
+  <div class="home-btns">
+    <button class="btn btn-primary" onclick="navigate('form')">＋ &nbsp;Nueva Inspección</button>
+    <button class="btn btn-outline" onclick="navigate('reports')">📋 &nbsp;Ver Reportes</button>
+    <button class="btn btn-outline" onclick="navigate('stats')" style="color:#1565C0;border-color:#1565C0">📊 &nbsp;Estadísticas</button>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="screen" id="scr-form">
+  <div class="pad">
+    <div class="card">
+      <div class="section-title">Datos del ingreso</div>
+      <div class="form-row">
+        <label for="f-transportista">Transportista</label>
+        <input id="f-transportista" type="text" placeholder="Nombre del transportista" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label for="f-proveedor">Proveedor</label>
+        <select id="f-proveedor">
+          <option value="">Seleccione...</option>
+          <option value="Prestige">Prestige</option>
+          <option value="Colonia">Colonia</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="f-lote">Lote</label>
+        <input id="f-lote" type="text" placeholder="Número / código de lote" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label for="f-notas">Notas adicionales</label>
+        <textarea id="f-notas" placeholder="Observaciones (opcional)"></textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="submitForm()">Continuar → Captura de Fotos</button>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div class="screen" id="scr-camera">
+  <!-- General photos bar (shown only in general mode) -->
+  <div class="gen-bar" id="gen-bar">
+    <div class="gen-bar-inner">
+      <span class="gen-bar-icon">📷</span>
+      <div class="gen-bar-text">
+        <span class="gen-bar-title">Fotos Generales del Fruto</span>
+        <span class="gen-bar-sub">Mínimo 1 · máximo 5 fotos antes del control de calidad</span>
+      </div>
+      <span class="gen-bar-count" id="gen-count">0/5</span>
+    </div>
+  </div>
+
+  <!-- QC photo counts (shown only in QC mode) -->
+  <div class="count-bar" id="count-bar">
+    <div class="count-cell" data-cat="Racimos verdes">
+      <span class="count-num" id="cnt-0">0</span>
+      <span class="count-lbl">Verde</span>
+    </div>
+    <div class="count-cell" data-cat="Racimos maduros">
+      <span class="count-num" id="cnt-1">0</span>
+      <span class="count-lbl">Maduro</span>
+    </div>
+    <div class="count-cell" data-cat="Racimos sobre maduros">
+      <span class="count-num" id="cnt-2">0</span>
+      <span class="count-lbl">Sobre</span>
+    </div>
+    <div class="count-cell" data-cat="Racimos podridos">
+      <span class="count-num" id="cnt-3">0</span>
+      <span class="count-lbl">Podrido</span>
+    </div>
+    <div class="count-cell" data-cat="Pedúnculo largo">
+      <span class="count-num" id="cnt-4">0</span>
+      <span class="count-lbl">Pedún.</span>
+    </div>
+    <div class="count-cell" style="background:#1a1a1a">
+      <span class="count-num" id="cnt-total" style="color:#fff">0</span>
+      <span class="count-lbl" id="cnt-total-lbl">Total</span>
+    </div>
+  </div>
+
+  <!-- Viewport -->
+  <div class="cam-viewport" id="cam-viewport">
+    <video id="cam-video" autoplay playsinline muted></video>
+    <img id="cam-photo" src="" alt="Foto capturada">
+    <canvas id="cam-canvas" style="display:none"></canvas>
+
+    <!-- Confirmed label overlay -->
+    <div class="cam-label-overlay" id="cam-overlay">
+      <span class="cam-confirmed-tag" id="cam-tag">✓ Guardado</span>
+    </div>
+
+    <!-- Upload spinner -->
+    <div class="loading-overlay hidden" id="cam-loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- No-camera fallback -->
+    <div class="file-fallback" id="cam-fallback">
+      <span class="file-fallback-icon">📷</span>
+      <p>La cámara no está disponible.<br>Selecciona una foto de tu galería.</p>
+      <input type="file" id="file-input" accept="image/*" capture="environment"
+             onchange="handleFileInput(event)">
+      <button class="btn-file" onclick="document.getElementById('file-input').click()">
+        Elegir foto
+      </button>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="cam-controls">
+    <!-- Category row -->
+    <div class="cat-row" id="cat-row">
+      <button class="cat-pill active" data-cat="Racimos verdes"        onclick="selectCat(this)">🟢 Verde</button>
+      <button class="cat-pill"        data-cat="Racimos maduros"       onclick="selectCat(this)">🟠 Maduro</button>
+      <button class="cat-pill"        data-cat="Racimos sobre maduros" onclick="selectCat(this)">🔴 Sobremaduro</button>
+      <button class="cat-pill"        data-cat="Racimos podridos"      onclick="selectCat(this)">🟤 Podrido</button>
+      <button class="cat-pill"        data-cat="Pedúnculo largo"       onclick="selectCat(this)">🔵 Pedúnculo</button>
+    </div>
+
+    <!-- Capture row (live camera) -->
+    <div class="capture-zone" id="zone-capture">
+      <div style="flex:1"></div>
+      <button class="cap-btn" onclick="capturePhoto()" title="Capturar"></button>
+      <div style="flex:1"></div>
+    </div>
+
+    <!-- Save / retake row (after capture) -->
+    <div class="capture-zone hidden" id="zone-save">
+      <button class="side-btn retake" onclick="retakePhoto()">↩ Retomar</button>
+      <button class="side-btn save"   onclick="savePhoto()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="screen" id="scr-stats">
+  <div class="pad">
+    <!-- Filters -->
+    <div class="filter-card">
+      <div class="form-row" style="margin-bottom:10px">
+        <label for="stats-proveedor">Proveedor</label>
+        <select id="stats-proveedor" onchange="loadStats()">
+          <option value="">Todos</option>
+          <option value="Prestige">Prestige</option>
+          <option value="Colonia">Colonia</option>
+        </select>
+      </div>
+      <label>Período</label>
+      <div class="period-btns">
+        <button class="period-btn" onclick="setPeriod('week')">Esta semana</button>
+        <button class="period-btn active" onclick="setPeriod('month')">Este mes</button>
+        <button class="period-btn" onclick="setPeriod('last')">Mes pasado</button>
+        <button class="period-btn" onclick="setPeriod('3m')">3 meses</button>
+        <button class="period-btn" onclick="setPeriod('all')">Todo</button>
+      </div>
+      <div class="custom-dates" id="custom-dates" style="display:none">
+        <input type="date" id="stats-from" onchange="loadStats()">
+        <input type="date" id="stats-to"   onchange="loadStats()">
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="stats-result" id="stats-result">
+      <div class="stats-empty">Selecciona un período para ver las estadísticas.</div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORTS LIST -->
+<div class="screen" id="scr-reports">
+  <div class="pad" id="reports-list">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- REPORT DETAIL -->
+<div class="screen" id="scr-report">
+  <div class="pad" id="report-content">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- ── Category picker modal ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="cat-modal" onclick="closeCatModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">Cambiar categoría</div>
+    <div id="cat-modal-btns"></div>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Full-screen image viewer ───────────────────────────────────────────── -->
+<div class="img-viewer" id="img-viewer" onclick="closeViewer()">
+  <button class="img-viewer-close" onclick="closeViewer()">✕</button>
+  <img id="viewer-img" src="" alt="">
+</div>
+
+<!-- ── JavaScript ─────────────────────────────────────────────────────────── -->
+<script>
+"use strict";
+
+/* ── Constants ─────────────────────────────────────────────────────────── */
+const CATEGORIES = [
+  "Racimos verdes",
+  "Racimos maduros",
+  "Racimos sobre maduros",
+  "Racimos podridos",
+  "Pedúnculo largo",
+];
+
+const CAT_SHORT = {
+  "Racimos verdes":        "Verde",
+  "Racimos maduros":       "Maduro",
+  "Racimos sobre maduros": "Sobremaduro",
+  "Racimos podridos":      "Podrido",
+  "Pedúnculo largo":       "Pedúnculo",
+};
+
+/* ── App state ─────────────────────────────────────────────────────────── */
+const S = {
+  screen:       "login",      // current screen id
+  reportId:     null,
+  reportData:   null,
+  counts:       Object.fromEntries(CATEGORIES.map(c => [c, 0])),
+  selCat:       CATEGORIES[0],
+  stream:       null,
+  pendingB64:   null,         // captured frame awaiting save
+  camMode:      "live",       // "live" | "preview"
+  camStep:      "general",    // "general" | "qc"
+  generalCount: 0,            // how many General photos taken this session
+  backStack:    [],
+};
+
+/* ── Router ────────────────────────────────────────────────────────────── */
+function navigate(screen, opts = {}) {
+  // Stop camera if leaving camera screen
+  if (S.screen === "camera" && screen !== "camera") stopCamera();
+
+  S.backStack.push(S.screen);
+  S.screen = screen;
+  showScreen(screen, opts);
+}
+
+function navBack() {
+  const prev = S.backStack.pop() || "home";
+  if (S.screen === "camera") stopCamera();
+  S.screen = prev;
+  showScreen(prev, {});
+}
+
+function showScreen(screen, opts) {
+  document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+  document.getElementById("scr-" + screen).classList.add("active");
+
+  const navBack   = document.getElementById("nav-back");
+  const navTitle  = document.getElementById("nav-title");
+  const navAction = document.getElementById("nav-action");
+
+  navBack.classList.toggle("visible", screen !== "home" && screen !== "login");
+  navAction.classList.remove("visible");
+  navAction.onclick = null;
+  document.getElementById("nav-logout").style.display =
+    (screen !== "login") ? "block" : "none";
+
+  switch (screen) {
+    case "login":
+      navTitle.textContent = "Control de Calidad";
+      document.getElementById("nav-logout").style.display = "none";
+      break;
+    case "home":
+      navTitle.textContent = "Control de Calidad";
+      break;
+    case "stats":
+      navTitle.textContent = "Estadísticas";
+      setPeriod('month');   // default to current month
+      break;
+    case "form":
+      navTitle.textContent = "Nueva Inspección";
+      break;
+    case "camera":
+      navTitle.textContent = S.reportData ? `Lote: ${S.reportData.lote}` : "Captura";
+      initCamera();
+      break;
+    case "reports":
+      navTitle.textContent = "Historial";
+      loadReports();
+      break;
+    case "report":
+      navTitle.textContent = "Reporte";
+      loadReport(opts.id || S.reportId);
+      break;
+  }
+}
+
+/* ── Toast ────────────────────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg, dur = 2500) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), dur);
+}
+
+/* ── API helper ────────────────────────────────────────────────────────── */
+async function api(method, path, body) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  if (res.status === 401) {
+    // Session expired or not logged in — go back to login screen
+    S.backStack = [];
+    showScreen("login", {});
+    S.screen = "login";
+    throw new Error("Sesión expirada");
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || res.statusText);
+  }
+  return res.json();
+}
+
+/* ── Form ──────────────────────────────────────────────────────────────── */
+async function submitForm() {
+  const transportista = document.getElementById("f-transportista").value.trim();
+  const proveedor     = document.getElementById("f-proveedor").value;
+  const lote          = document.getElementById("f-lote").value.trim();
+  const notas         = document.getElementById("f-notas").value.trim();
+
+  if (!transportista) { showToast("⚠️ Ingresa el transportista"); return; }
+  if (!proveedor)     { showToast("⚠️ Selecciona el proveedor");  return; }
+  if (!lote)          { showToast("⚠️ Ingresa el número de lote");return; }
+
+  try {
+    const res = await api("POST", "/api/reports", { transportista, proveedor, lote, notas });
+    S.reportId    = res.id;
+    S.reportData  = { transportista, proveedor, lote, notas };
+    S.counts      = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
+    S.camStep     = "general";   // always start with general photos
+    S.generalCount = 0;
+    navigate("camera");
+  } catch (e) {
+    showToast("❌ Error al crear reporte: " + e.message);
+  }
+}
+
+/* ── Camera ────────────────────────────────────────────────────────────── */
+
+// Toggle between general mode UI and QC mode UI
+function showCameraUI() {
+  const isGeneral = S.camStep === "general";
+  document.getElementById("gen-bar").style.display   = isGeneral ? "block" : "none";
+  document.getElementById("count-bar").style.display = isGeneral ? "none"  : "flex";
+  document.getElementById("cat-row").style.display   = isGeneral ? "none"  : "flex";
+  updateCounts();
+  refreshNavAction();
+}
+
+// Update nav button to match current camera step
+function refreshNavAction() {
+  const navAction = document.getElementById("nav-action");
+  navAction.classList.add("visible");
+  if (S.camStep === "general") {
+    navAction.textContent     = "Continuar →";
+    navAction.style.opacity   = S.generalCount >= 1 ? "1" : "0.35";
+    navAction.style.pointerEvents = S.generalCount >= 1 ? "auto" : "none";
+    navAction.onclick = S.generalCount >= 1 ? startQC : null;
+  } else {
+    navAction.textContent     = "✓ Listo";
+    navAction.style.opacity   = "1";
+    navAction.style.pointerEvents = "auto";
+    navAction.onclick = finishCapture;
+  }
+}
+
+// Transition from general step → QC step (no camera restart needed)
+function startQC() {
+  S.camStep = "qc";
+  showCameraUI();
+}
+
+async function initCamera() {
+  const video    = document.getElementById("cam-video");
+  const fallback = document.getElementById("cam-fallback");
+  const overlay  = document.getElementById("cam-overlay");
+  overlay.classList.remove("show");
+  showLiveCam();
+  showCameraUI();  // sets up bars, counts, and nav button
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    fallback.classList.add("show");
+    video.style.display = "none";
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false,
+    });
+    S.stream = stream;
+    video.srcObject = stream;
+    await video.play();
+    fallback.classList.remove("show");
+  } catch (err) {
+    console.warn("Camera error:", err);
+    fallback.classList.add("show");
+    video.style.display = "none";
+  }
+}
+
+function stopCamera() {
+  if (S.stream) {
+    S.stream.getTracks().forEach(t => t.stop());
+    S.stream = null;
+  }
+  const video = document.getElementById("cam-video");
+  video.srcObject = null;
+  video.style.display = "";
+}
+
+function selectCat(btn) {
+  document.querySelectorAll(".cat-pill").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  S.selCat = btn.dataset.cat;
+}
+
+function capturePhoto() {
+  const video  = document.getElementById("cam-video");
+  const canvas = document.getElementById("cam-canvas");
+  const photo  = document.getElementById("cam-photo");
+
+  if (S.camStep === "general" && S.generalCount >= 5) {
+    showToast("⚠️ Máximo 5 fotos generales. Toca 'Continuar →' para el control de calidad.");
+    return;
+  }
+
+  // In file-input fallback mode, delegate the circular button to the file picker
+  if (document.getElementById("cam-fallback").classList.contains("show")) {
+    document.getElementById("file-input").click();
+    return;
+  }
+
+  if (!S.stream) {
+    showToast("⚠️ Cámara no disponible");
+    return;
+  }
+
+  const W = video.videoWidth  || 1280;
+  const H = video.videoHeight || 960;
+  canvas.width  = W;
+  canvas.height = H;
+  canvas.getContext("2d").drawImage(video, 0, 0, W, H);
+
+  // Resize before upload (max 1200×900)
+  resizeCanvas(canvas, 1200, 900, (b64) => {
+    S.pendingB64 = b64;
+    photo.src    = b64;
+    photo.style.display = "block";
+    showPreviewCam();
+  });
+}
+
+function resizeCanvas(srcCanvas, maxW, maxH, cb) {
+  const { width: sw, height: sh } = srcCanvas;
+  const ratio = Math.min(maxW / sw, maxH / sh, 1);
+  const rw = Math.round(sw * ratio);
+  const rh = Math.round(sh * ratio);
+  const tmp = document.createElement("canvas");
+  tmp.width  = rw;
+  tmp.height = rh;
+  tmp.getContext("2d").drawImage(srcCanvas, 0, 0, rw, rh);
+  cb(tmp.toDataURL("image/jpeg", 0.85));
+}
+
+function handleFileInput(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+
+  // Reset immediately so the same or a new file can be chosen next time
+  evt.target.value = "";
+
+  if (S.camStep === "general" && S.generalCount >= 5) {
+    showToast("⚠️ Máximo 5 fotos generales. Toca 'Continuar →' para el control de calidad.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ratio  = Math.min(1200 / img.width, 900 / img.height, 1);
+      canvas.width  = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      const b64 = canvas.toDataURL("image/jpeg", 0.85);
+      S.pendingB64 = b64;
+      const photo = document.getElementById("cam-photo");
+      photo.src   = b64;
+      photo.style.display = "block";
+      showPreviewCam();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showLiveCam() {
+  S.camMode = "live";
+  const video    = document.getElementById("cam-video");
+  const fallback = document.getElementById("cam-fallback");
+  const usingFallback = fallback.classList.contains("show");
+
+  if (!usingFallback) {
+    // Real camera — re-attach stream and resume playback (required on iOS/Android)
+    video.style.display = "";
+    if (S.stream) {
+      if (!video.srcObject) video.srcObject = S.stream;
+      video.play().catch(() => {});
+    }
+  }
+
+  document.getElementById("cam-photo").style.display = "none";
+  document.getElementById("zone-capture").classList.remove("hidden");
+  document.getElementById("zone-save").classList.add("hidden");
+  document.getElementById("cam-overlay").classList.remove("show");
+}
+
+function showPreviewCam() {
+  S.camMode = "preview";
+  document.getElementById("cam-video").style.display = "none";
+  document.getElementById("zone-capture").classList.add("hidden");
+  document.getElementById("zone-save").classList.remove("hidden");
+}
+
+function retakePhoto() {
+  S.pendingB64 = null;
+  document.getElementById("cam-photo").src = "";
+  document.getElementById("cam-photo").style.display = "none";
+  showLiveCam();
+}
+
+async function savePhoto() {
+  if (!S.pendingB64) return;
+  const loading = document.getElementById("cam-loading");
+  loading.classList.remove("hidden");
+
+  const isGeneral = S.camStep === "general";
+  const category  = isGeneral ? "General" : S.selCat;
+
+  try {
+    await api("POST", `/api/reports/${S.reportId}/photos`, {
+      category,
+      image: S.pendingB64,
+    });
+
+    const overlay = document.getElementById("cam-overlay");
+    const tag     = document.getElementById("cam-tag");
+
+    if (isGeneral) {
+      S.generalCount++;
+      tag.textContent      = `✓ Foto general guardada (${S.generalCount}/5)`;
+      tag.style.background = "#455A64";
+    } else {
+      S.counts[S.selCat]++;
+      tag.textContent      = `✓ ${CAT_SHORT[S.selCat]} guardado`;
+      tag.style.background = catColor(S.selCat);
+    }
+
+    updateCounts();
+    if (isGeneral) refreshNavAction();  // enable "Continuar →" after first general photo
+
+    overlay.classList.add("show");
+    S.pendingB64 = null;
+    setTimeout(() => {
+      document.getElementById("cam-photo").style.display = "none";
+      showLiveCam();
+    }, 1200);
+  } catch (e) {
+    showToast("❌ Error al guardar: " + e.message, 3500);
+    retakePhoto();
+  } finally {
+    loading.classList.add("hidden");
+  }
+}
+
+function catColor(cat) {
+  const map = {
+    "Racimos verdes":        "#2E7D32",
+    "Racimos maduros":       "#F57F17",
+    "Racimos sobre maduros": "#BF360C",
+    "Racimos podridos":      "#4E342E",
+    "Pedúnculo largo":       "#1565C0",
+  };
+  return map[cat] || "#333";
+}
+
+function updateCounts() {
+  if (S.camStep === "general") {
+    // Update general bar counter
+    const el = document.getElementById("gen-count");
+    if (el) {
+      el.textContent = `${S.generalCount}/5`;
+      el.classList.toggle("max", S.generalCount >= 5);
+    }
+    return;
+  }
+
+  // QC mode — update per-category cells
+  CATEGORIES.forEach((cat, i) => {
+    document.getElementById(`cnt-${i}`).textContent = S.counts[cat];
+  });
+  const total  = CATEGORIES.reduce((s, c) => s + S.counts[c], 0);
+  const faltan = Math.max(0, 28 - total);
+  document.getElementById("cnt-total").textContent = `${total}/28`;
+  const lbl = document.getElementById("cnt-total-lbl");
+  if (lbl) lbl.textContent = faltan > 0 ? `Faltan: ${faltan}` : "✓ Listo";
+}
+
+function finishCapture() {
+  navigate("report", { id: S.reportId });
+}
+
+/* ── Reports list ──────────────────────────────────────────────────────── */
+async function loadReports() {
+  const container = document.getElementById("reports-list");
+  container.innerHTML = '<div class="spinner"></div>';
+  try {
+    const reports = await api("GET", "/api/reports");
+    if (!reports.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">📋</span>
+          <p>Aún no hay reportes.<br>Crea tu primera inspección.</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = reports.map(r => {
+      const dt    = new Date(r.created_at + "Z").toLocaleString("es", { timeZone:"America/Bogota", dateStyle:"short", timeStyle:"short" });
+      const total = r.photo_count || 0;
+      return `
+        <div class="report-item" onclick="navigate('report',{id:'${r.id}'})">
+          <div class="rep-icon">🌴</div>
+          <div class="rep-info">
+            <div class="rep-lote">Lote: ${esc(r.lote)}</div>
+            <div class="rep-meta">${esc(r.proveedor)} · ${esc(r.transportista)}</div>
+            <div class="rep-meta">${dt} · ${total} foto${total !== 1 ? "s" : ""}</div>
+          </div>
+          <div class="rep-arrow">›</div>
+        </div>`;
+    }).join("");
+  } catch (e) {
+    container.innerHTML = `<p style="color:#c62828;padding:16px">Error: ${e.message}</p>`;
+  }
+}
+
+/* ── Report detail ─────────────────────────────────────────────────────── */
+async function loadReport(id) {
+  S.reportId = id;
+  const container = document.getElementById("report-content");
+  container.innerHTML = '<div class="spinner"></div>';
+
+  // Show nav action for adding photos
+  const navAction = document.getElementById("nav-action");
+  navAction.textContent = "＋ Fotos";
+  navAction.classList.add("visible");
+  navAction.onclick = () => {
+    S.reportData = { lote: "—" };
+    S.camStep = "qc";
+    navigate("camera");
+  };
+
+  try {
+    const r = await api("GET", `/api/reports/${id}`);
+    S.reportData = r;
+
+    // Update nav action label with lote
+    const dt        = new Date(r.created_at + "Z").toLocaleString("es", { timeZone:"America/Bogota", dateStyle:"medium", timeStyle:"short" });
+    const qcPhotos  = r.photos.filter(p => p.category !== "General");
+    const counts    = Object.fromEntries(CATEGORIES.map(c => [c, qcPhotos.filter(p => p.category === c).length]));
+    const total     = qcPhotos.length || 1;
+
+    // Stat boxes
+    const statBoxes = CATEGORIES.map(cat => {
+      const n = counts[cat];
+      const p = Math.round(n / total * 100);
+      return `
+        <div class="stat-box" data-cat="${cat}">
+          <span class="stat-n" data-cat="${cat}">${n}</span>
+          <div class="stat-lbl">${CAT_SHORT[cat]}</div>
+          <div class="stat-pct">${p}%</div>
+        </div>`;
+    }).join("");
+
+    // Photo grid — all photos with label + edit + delete
+    const photoGrid = r.photos.length ? `
+      <div class="photo-grid-2">
+        ${r.photos.map(p => `
+          <div class="photo-card">
+            <img class="photo-card-img"
+                 src="/uploads/${p.filename}"
+                 loading="lazy"
+                 onclick="openViewer('/uploads/${p.filename}')">
+            <div class="photo-card-label" data-cat="${esc(p.category)}">${esc(p.category)}</div>
+            <div class="photo-card-actions">
+              <button class="photo-action-btn edit"
+                onclick="promptCategoryChange('${id}','${p.id}','${esc(p.category)}')">
+                ✏️ Cambiar
+              </button>
+              <button class="photo-action-btn del"
+                onclick="deletePhoto('${id}','${p.id}',event)">🗑️</button>
+            </div>
+          </div>`).join("")}
+      </div>` : '<p style="color:#aaa;font-size:13px">Sin fotos aún.</p>';
+
+    container.innerHTML = `
+      <div class="card">
+        <div class="info-grid">
+          <div class="info-cell full">
+            <div class="info-key">Fecha y hora</div>
+            <div class="info-val">${dt}</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-key">Transportista</div>
+            <div class="info-val">${esc(r.transportista)}</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-key">Proveedor</div>
+            <div class="info-val">${esc(r.proveedor)}</div>
+          </div>
+          <div class="info-cell full">
+            <div class="info-key">Lote</div>
+            <div class="info-val">${esc(r.lote)}</div>
+          </div>
+          ${r.notas ? `
+          <div class="info-cell full">
+            <div class="info-key">Notas adicionales</div>
+            <div class="info-val">${esc(r.notas)}</div>
+          </div>` : ""}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Resumen — ${qcPhotos.length} foto${qcPhotos.length !== 1 ? "s" : ""} de calidad${r.photos.length - qcPhotos.length > 0 ? ` · ${r.photos.length - qcPhotos.length} general` : ""}</div>
+        <div class="stat-row">${statBoxes}</div>
+      </div>
+
+      <a href="/api/reports/${id}/pdf" class="btn btn-primary" style="text-decoration:none;margin-bottom:12px;display:block">
+        📄 &nbsp;Descargar PDF
+      </a>
+
+      <button class="btn btn-outline" style="margin-bottom:12px"
+        onclick="S.reportData={lote:'${esc(r.lote)}'};S.camStep='qc';navigate('camera')">
+        📷 &nbsp;Agregar más fotos
+      </button>
+
+      <div class="card">
+        <div class="section-title">Fotos (${r.photos.length} total · ${r.photos.length - qcPhotos.length} general · ${qcPhotos.length} calidad)</div>
+        ${photoGrid}
+      </div>
+
+      <button class="btn btn-danger btn-sm" style="margin-top:4px;margin-bottom:24px"
+        onclick="deleteReport('${id}')">
+        🗑 Eliminar reporte
+      </button>`;
+
+  } catch (e) {
+    container.innerHTML = `<p style="color:#c62828;padding:16px">Error: ${e.message}</p>`;
+  }
+}
+
+async function deletePhoto(reportId, photoId, evt) {
+  evt.stopPropagation();
+  if (!confirm("¿Eliminar esta foto?")) return;
+  try {
+    await api("DELETE", `/api/reports/${reportId}/photos/${photoId}`);
+    showToast("Foto eliminada");
+    loadReport(reportId);
+  } catch (e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+/* ── Category change modal ─────────────────────────────────────────────── */
+let _editPhoto = null;
+
+function promptCategoryChange(reportId, photoId, currentCat) {
+  _editPhoto = { reportId, photoId };
+  const btns = CATEGORIES.map(cat => `
+    <button class="modal-cat-btn ${cat === currentCat ? "current" : ""}"
+            data-cat="${cat}"
+            onclick="applyPhotoCategory('${cat}')">
+      ${cat}
+    </button>`).join("");
+  document.getElementById("cat-modal-btns").innerHTML =
+    btns + `<button class="modal-cat-btn modal-cancel" onclick="closeCatModal()">Cancelar</button>`;
+  document.getElementById("cat-modal").classList.add("open");
+}
+
+function closeCatModal() {
+  document.getElementById("cat-modal").classList.remove("open");
+  _editPhoto = null;
+}
+
+async function applyPhotoCategory(newCat) {
+  if (!_editPhoto) return;
+  const { reportId, photoId } = _editPhoto;
+  closeCatModal();
+  try {
+    await api("PATCH", `/api/reports/${reportId}/photos/${photoId}`, { category: newCat });
+    showToast("✓ Categoría actualizada");
+    loadReport(reportId);
+  } catch (e) {
+    showToast("❌ Error: " + e.message);
+  }
+}
+
+
+async function deleteReport(id) {
+  if (!confirm("¿Eliminar este reporte y todas sus fotos?")) return;
+  try {
+    await api("DELETE", `/api/reports/${id}`);
+    showToast("Reporte eliminado");
+    navigate("reports");
+  } catch (e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+/* ── Image viewer ──────────────────────────────────────────────────────── */
+function openViewer(src) {
+  document.getElementById("viewer-img").src = src;
+  document.getElementById("img-viewer").classList.add("open");
+}
+function closeViewer() {
+  document.getElementById("img-viewer").classList.remove("open");
+}
+
+/* ── Utils ─────────────────────────────────────────────────────────────── */
+function esc(str) {
+  return String(str ?? "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ── Auth ──────────────────────────────────────────────────────────────── */
+async function checkAuth() {
+  try {
+    const res = await fetch("/api/auth/status");
+    const data = await res.json();
+    if (data.logged_in) {
+      S.screen = "home";
+      showScreen("home", {});
+    } else {
+      S.screen = "login";
+      showScreen("login", {});
+    }
+  } catch {
+    showScreen("login", {});
+  }
+}
+
+async function doLogin() {
+  const pw  = document.getElementById("login-pw").value;
+  const err = document.getElementById("login-error");
+  err.textContent = "";
+  if (!pw) { err.textContent = "Ingresa la contraseña."; return; }
+  try {
+    await api("POST", "/api/auth/login", { password: pw });
+    document.getElementById("login-pw").value = "";
+    S.screen = "home";
+    S.backStack = [];
+    showScreen("home", {});
+  } catch (e) {
+    err.textContent = "Contraseña incorrecta.";
+    document.getElementById("login-pw").select();
+  }
+}
+
+async function doLogout() {
+  try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
+  S.backStack = [];
+  S.screen = "login";
+  showScreen("login", {});
+}
+
+/* ── Statistics ────────────────────────────────────────────────────────── */
+const CAT_COLORS_HEX = {
+  "Racimos verdes":        "#2E7D32",
+  "Racimos maduros":       "#F57F17",
+  "Racimos sobre maduros": "#BF360C",
+  "Racimos podridos":      "#4E342E",
+  "Pedúnculo largo":       "#1565C0",
+};
+
+let _activePeriod = "month";
+
+function setPeriod(preset) {
+  _activePeriod = preset;
+  document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("active"));
+  // find and activate the clicked button
+  document.querySelectorAll(".period-btn").forEach(b => {
+    if (b.getAttribute("onclick") === `setPeriod('${preset}')`)
+      b.classList.add("active");
+  });
+
+  const pad = n => String(n).padStart(2, "0");
+  const now = new Date();
+  let from = "", to = "";
+
+  if (preset === "week") {
+    const d = new Date(now); d.setDate(d.getDate() - 6);
+    from = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    to   = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  } else if (preset === "month") {
+    from = `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;
+    to   = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  } else if (preset === "last") {
+    const d    = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const last = new Date(now.getFullYear(), now.getMonth(), 0);
+    from = `${d.getFullYear()}-${pad(d.getMonth()+1)}-01`;
+    to   = `${last.getFullYear()}-${pad(last.getMonth()+1)}-${pad(last.getDate())}`;
+  } else if (preset === "3m") {
+    const d = new Date(now); d.setMonth(d.getMonth() - 3);
+    from = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    to   = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  }
+  // "all" → leave from/to empty
+
+  const customEl = document.getElementById("custom-dates");
+  customEl.style.display = "none";
+  document.getElementById("stats-from").value = from;
+  document.getElementById("stats-to").value   = to;
+  loadStats();
+}
+
+async function loadStats() {
+  const proveedor = document.getElementById("stats-proveedor").value;
+  const from      = document.getElementById("stats-from").value;
+  const to        = document.getElementById("stats-to").value;
+  const result    = document.getElementById("stats-result");
+
+  result.innerHTML = '<div class="spinner"></div>';
+
+  const params = new URLSearchParams();
+  if (proveedor) params.set("proveedor", proveedor);
+  if (from)      params.set("from", from);
+  if (to)        params.set("to", to);
+
+  try {
+    const d = await api("GET", `/api/stats?${params}`);
+
+    if (d.report_count === 0) {
+      result.innerHTML = `<div class="stats-empty">Sin reportes para este período.</div>`;
+      return;
+    }
+
+    const provLabel = proveedor || "Todos los proveedores";
+    const fromLabel = from || "—";
+    const toLabel   = to   || "—";
+
+    const bars = CATEGORIES.map(cat => {
+      const count = d.counts[cat];
+      const pct   = d.percentages[cat];
+      const color = CAT_COLORS_HEX[cat];
+      return `
+        <div class="stat-bar-row">
+          <div class="stat-bar-label">
+            <span class="stat-bar-name">${cat}</span>
+            <span class="stat-bar-nums">${count} unidades &nbsp;·&nbsp; ${pct}%</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+        </div>`;
+    }).join("");
+
+    result.innerHTML = `
+      <div class="stats-summary">
+        <strong>${d.report_count}</strong> reporte${d.report_count !== 1 ? "s" : ""}
+        &nbsp;·&nbsp;
+        <strong>${d.total_qc_photos}</strong> racimos evaluados
+        <div style="font-size:12px;margin-top:4px">${esc(provLabel)} &nbsp;·&nbsp; ${fromLabel} → ${toLabel}</div>
+      </div>
+      ${bars}`;
+  } catch (e) {
+    if (e.message !== "Sesión expirada")
+      result.innerHTML = `<p style="color:#c62828;padding:8px">Error: ${e.message}</p>`;
+  }
+}
+
+/* ── Keyboard / escape ─────────────────────────────────────────────────── */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeViewer();
+});
+</script>
+</body>
+</html>

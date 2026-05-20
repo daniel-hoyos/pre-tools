@@ -1,0 +1,11 @@
+venv/
+.venv/
+uploads/
+quality_control.db
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.zip
+.DS_Store
+SETUP_AWS.md
