@@ -428,7 +428,7 @@ def create_report():
         return jsonify({"error": "Faltan campos requeridos"}), 400
 
     report_id  = str(uuid.uuid4())
-    created_at = datetime.now().isoformat()
+    created_at = datetime.now(COT).isoformat()
     db_create_report(
         report_id,
         data["transportista"], data["proveedor"],
@@ -478,7 +478,7 @@ def upload_photo(report_id):
     img_bytes  = _process_image(image_b64)
     photo_id   = str(uuid.uuid4())
     filename   = f"{photo_id}.jpg"
-    created_at = datetime.now().isoformat()
+    created_at = datetime.now(COT).isoformat()
 
     storage_save(img_bytes, filename)
     db_create_photo(photo_id, report_id, filename, category, created_at)
@@ -536,6 +536,17 @@ def download_pdf(report_id):
 
 # ── Routes – API: Stats ───────────────────────────────────────────────────────
 
+def _cot_date(dt_str: str) -> str:
+    """Return the Colombia (UTC-5) calendar date for a stored datetime string."""
+    try:
+        dt = datetime.fromisoformat(dt_str)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(COT).strftime("%Y-%m-%d")
+    except Exception:
+        return dt_str[:10]
+
+
 @application.route("/api/stats", methods=["GET"])
 @login_required
 def get_stats():
@@ -548,9 +559,9 @@ def get_stats():
     if proveedor:
         reports = [r for r in reports if r["proveedor"] == proveedor]
     if from_date:
-        reports = [r for r in reports if r["created_at"][:10] >= from_date]
+        reports = [r for r in reports if _cot_date(r["created_at"]) >= from_date]
     if to_date:
-        reports = [r for r in reports if r["created_at"][:10] <= to_date]
+        reports = [r for r in reports if _cot_date(r["created_at"]) <= to_date]
 
     counts = {c: 0 for c in CATEGORIES}
     for report in reports:

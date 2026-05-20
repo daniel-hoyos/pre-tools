@@ -604,6 +604,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <button class="period-btn" onclick="setPeriod('last')">Mes pasado</button>
         <button class="period-btn" onclick="setPeriod('3m')">3 meses</button>
         <button class="period-btn" onclick="setPeriod('all')">Todo</button>
+        <button class="period-btn" onclick="setPeriod('custom')">Personalizado</button>
       </div>
       <div class="custom-dates" id="custom-dates" style="display:none">
         <input type="date" id="stats-from" onchange="loadStats()">
@@ -1384,6 +1385,10 @@ function setPeriod(preset) {
   // "all" → leave from/to empty
 
   const customEl = document.getElementById("custom-dates");
+  if (preset === "custom") {
+    customEl.style.display = "flex";
+    return;
+  }
   customEl.style.display = "none";
   document.getElementById("stats-from").value = from;
   document.getElementById("stats-to").value   = to;
@@ -1449,6 +1454,9 @@ async function loadStats() {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeViewer();
 });
+
+/* ── Init ──────────────────────────────────────────────────────────────── */
+checkAuth();
 </script>
 </body>
 </html>
