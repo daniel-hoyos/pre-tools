@@ -151,7 +151,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   font-size:14px;font-weight:700;color:#fff;
 }
 
-.cam-controls{background:#111;flex-shrink:0;padding-bottom:var(--safe-bottom)}
+.cam-controls{background:#111;flex-shrink:0}
+.cam-action-bar{
+  background:#111;flex-shrink:0;
+  padding:8px 16px calc(10px + var(--safe-bottom));
+}
+#cam-action-btn{
+  width:100%;padding:16px;border:none;border-radius:var(--r);
+  font-size:16px;font-weight:700;cursor:pointer;
+  background:var(--g1);color:#fff;
+  box-shadow:0 4px 14px rgba(46,125,50,.35);
+  display:none;
+}
+#cam-action-btn.visible{display:block}
+#cam-action-btn:active{transform:scale(.97)}
 
 /* Category selector */
 .cat-row{
@@ -582,6 +595,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <button class="side-btn save"   onclick="savePhoto()">✓ Guardar</button>
     </div>
   </div>
+
+  <!-- Bottom action button (Continuar / Listo) -->
+  <div class="cam-action-bar">
+    <button id="cam-action-btn"></button>
+  </div>
 </div>
 
 <!-- STATS -->
@@ -812,20 +830,20 @@ function showCameraUI() {
   refreshNavAction();
 }
 
-// Update nav button to match current camera step
+// Update bottom action button to match current camera step
 function refreshNavAction() {
-  const navAction = document.getElementById("nav-action");
-  navAction.classList.add("visible");
+  const btn = document.getElementById("cam-action-btn");
+  btn.classList.add("visible");
   if (S.camStep === "general") {
-    navAction.textContent     = "Continuar →";
-    navAction.style.opacity   = S.generalCount >= 1 ? "1" : "0.35";
-    navAction.style.pointerEvents = S.generalCount >= 1 ? "auto" : "none";
-    navAction.onclick = S.generalCount >= 1 ? startQC : null;
+    btn.textContent     = "Continuar →";
+    btn.style.opacity   = S.generalCount >= 1 ? "1" : "0.35";
+    btn.style.pointerEvents = S.generalCount >= 1 ? "auto" : "none";
+    btn.onclick = S.generalCount >= 1 ? startQC : null;
   } else {
-    navAction.textContent     = "✓ Listo";
-    navAction.style.opacity   = "1";
-    navAction.style.pointerEvents = "auto";
-    navAction.onclick = finishCapture;
+    btn.textContent     = "✓ Listo";
+    btn.style.opacity   = "1";
+    btn.style.pointerEvents = "auto";
+    btn.onclick = finishCapture;
   }
 }
 
