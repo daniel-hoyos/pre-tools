@@ -1136,14 +1136,12 @@ async function loadReport(id) {
   const container = document.getElementById("report-content");
   container.innerHTML = '<div class="spinner"></div>';
 
-  // Show nav action for adding photos
   const navAction = document.getElementById("nav-action");
-  navAction.textContent = "＋ Fotos";
+  navAction.textContent = "Inicio";
   navAction.classList.add("visible");
   navAction.onclick = () => {
-    S.reportData = { lote: "—" };
-    S.camStep = "qc";
-    navigate("camera");
+    S.backStack = [];
+    navigate("home");
   };
 
   try {
