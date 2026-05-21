@@ -1093,6 +1093,7 @@ function updateCounts() {
 }
 
 function finishCapture() {
+  S.backStack = [];
   navigate("report", { id: S.reportId });
 }
 
